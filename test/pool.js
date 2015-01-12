@@ -9,7 +9,7 @@ var expect = chai.expect;
 var dns = require('dns');
 var sinon = require('sinon');
 
-var bitcore = require('bitcore-base');
+var bitcore = require('bitcore');
 var P2P = require('../');
 var Peer = P2P.Peer;
 var MessagesData = require('./data/messages');
