@@ -3,7 +3,7 @@ P2P Networking capabilities for bitcore
 
 [![NPM Package](https://img.shields.io/npm/v/bitcore-p2p.svg?style=flat-square)](https://www.npmjs.org/package/bitcore-p2p)
 [![Build Status](https://img.shields.io/travis/bitpay/bitcore-p2p.svg?branch=master&style=flat-square)](https://travis-ci.org/bitpay/bitcore-p2p)
-[![Coverage Status](https://img.shields.io/coveralls/bitpay/bitcore-p2p.svg)](https://coveralls.io/r/bitpay/bitcore-p2p?branch=master)
+[![Coverage Status](https://img.shields.io/coveralls/bitpay/bitcore-p2p.svg?style=flat-square)](https://coveralls.io/r/bitpay/bitcore-p2p?branch=master)
 
 bitcore-p2p adds support for connecting to the bitcoin p2p network on node.
 
@@ -12,10 +12,10 @@ See [the main bitcore repo](https://github.com/bitpay/bitcore) for more informat
 ## Getting Started
 
 ```sh
-npm install bitcore-rpc
+npm install bitcore-p2p
 ```
 ```sh
-bower install bitcore-rpc
+bower install bitcore-p2p
 ```
 In order to connect to the bitcore network, you'll need to know the IP address of at least one node of the network. You can do that by using the known DNS servers. Then, you can connect to it:
 
