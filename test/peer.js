@@ -1,6 +1,6 @@
 'use strict';
 
-var _ = require('lodash');
+var _ = require('bitcore').deps._;
 var chai = require('chai');
 var Net = require('net');
 var Socks5Client = require('socks5-client');
