@@ -19,37 +19,49 @@ var Networks = bitcore.Networks;
 describe('Peer', function() {
 
   describe('Integration test', function() {
-    it('parses this stream of data from a connection', function(callback) {
+    it('parses ./test/connection.log', function(callback) {
       var peer = new Peer('');
-      var stub = sinon.stub();
+      var mockSocket = sinon.stub();
       var dataCallback;
       var connectCallback;
+      var endCallback;
       var expected = {
         version: 1,
         verack: 1,
         inv: 18,
+        ready: 1,
+        disconnect: 1,
         addr: 4
       };
       var received = {
         version: 0,
         verack: 0,
         inv: 0,
+        ready: 0,
+        disconnect: 0,
         addr: 0
       };
-      stub.on = function() {
+      mockSocket.on = function() {
         if (arguments[0] === 'data') {
           dataCallback = arguments[1];
         }
         if (arguments[0] === 'connect') {
           connectCallback = arguments[1];
         }
+        if (arguments[0] === 'end') {
+          endCallback = arguments[1];
+        }
       };
-      stub.write = function() {};
-      stub.connect = function() {
+      mockSocket.write = function() {};
+      mockSocket.destroy = function() {};
+      mockSocket.connect = function() {
         connectCallback();
       };
+      mockSocket.end = function() {
+        endCallback();
+      };
       peer._getSocket = function() {
-        return stub;
+        return mockSocket;
       };
       peer.on('connect', function() {
         dataCallback(fs.readFileSync('./test/connection.log'));
@@ -64,7 +76,10 @@ describe('Peer', function() {
       peer.on('verack', check);
       peer.on('addr', check);
       peer.on('inv', check);
+      peer.on('ready', function() {check({command: 'ready'})});
+      peer.on('disconnect', function() {check({command: 'disconnect'})});
       peer.connect();
+      mockSocket.end();
     });
   });
 
