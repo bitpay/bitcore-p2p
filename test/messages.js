@@ -1,19 +1,21 @@
 'use strict';
 
 var chai = require('chai');
-
 var should = chai.should();
-
+var fs = require('fs');
 var Buffers = require('buffers');
+
 var bitcore = require('bitcore');
+var _ = bitcore.deps._;
+var Networks = bitcore.Networks;
+var network = Networks.livenet;
+var BufferUtils = bitcore.util.buffer;
+
 var Data = require('./data/messages');
 var P2P = require('../');
 var BloomFilter = P2P.BloomFilter;
 var Messages = P2P.Messages;
-var Networks = bitcore.Networks;
-var BufferUtils = bitcore.util.buffer;
 
-var network = Networks.livenet;
 
 describe('Messages', function() {
 
@@ -157,4 +159,30 @@ describe('Messages', function() {
     msg.getPayload().toString('hex').should.equal(testPayload);
   });
 
+  it('ParseMessages works on Satoshi-v0.9.1.dat', function(callback) {
+    var fileBuffer = fs.readFileSync(__dirname + '/data/Satoshi-v0.9.1.dat');
+    var dataBuffer = new Buffers();
+    dataBuffer.push(fileBuffer);
+
+    var expected = {
+      version: 1,
+      verack: 1,
+      inv: 18,
+      addr: 4
+    };
+    var actual = {
+      version: 0,
+      verack: 0,
+      inv: 0,
+      addr: 0
+    };
+    var countMessage = function(message) {
+      actual[message.command]++;
+      if (_.isEqual(actual, expected)) {
+        callback();
+      }
+    };
+    var messages = Messages.parseMessages(network, dataBuffer);
+    messages.forEach(countMessage);
+  });
 });
