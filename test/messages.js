@@ -185,4 +185,9 @@ describe('Messages', function() {
     var messages = Messages.parseMessages(network, dataBuffer);
     messages.forEach(countMessage);
   });
+
+  it('default new Ping has zero-length nonce', function() {
+    var message = new Messages.Ping();
+    message.nonce.length.should.equal(0);
+  });
 });
