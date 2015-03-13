@@ -21,12 +21,12 @@ var Messages = p2p.Messages;
 
 describe('Peer', function() {
 
-  var mockPeer, mockSocket;
+  var mockPeer, mockSocket, dataBuffer;
   beforeEach( function() {
     mockPeer = new Peer();
     mockSocket = new EventEmitter();
     mockPeer._getSocket = function() {return mockSocket};
-    var dataBuffer = new Buffers();
+    dataBuffer = new Buffers();
     mockSocket.write = function(data) {
       dataBuffer.push(data)
     };
@@ -37,7 +37,7 @@ describe('Peer', function() {
     mockPeer.connect();
   });
 
-  it('parses the messages in Satoshi-v0.9.1.dat', function(callback) {
+  it('parses and emits properly when fed Satoshi-v0.9.1.dat', function(callback) {
     var expected = {
       version: 1,
       verack: 1,
@@ -134,4 +134,25 @@ describe('Peer', function() {
     });
   });
 
+  it('should send pong on ping', function() {
+    var pingMessage = new Messages.Ping();
+    mockSocket.emit('data', pingMessage.serialize(Networks.livenet));
+    var responseMessages = Messages.parseMessages(Networks.livenet, dataBuffer);
+    var pongMessage = responseMessages[responseMessages.length - 1];
+    'pong'.should.equal(pongMessage.command);
+  });
+
+  it('pong should have same nonce as ping', function() {
+    var pingMessage = new Messages.Ping();
+    mockSocket.emit('data', pingMessage.serialize(Networks.livenet));
+    var responseMessages = Messages.parseMessages(Networks.livenet, dataBuffer);
+    var pongMessage = responseMessages[responseMessages.length - 1];
+    pingMessage.nonce.toString().should.equal(pongMessage.nonce.toString());
+  });
+
+  it('should emit ready on verack', function(callback) {
+    var message = new Messages.VerAck();
+    mockPeer.on('ready', callback)
+    mockSocket.emit('data', message.serialize(Networks.livenet));
+  });
 });
