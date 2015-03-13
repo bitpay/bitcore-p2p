@@ -1,8 +1,10 @@
 'use strict';
 
+var Buffers = require('buffers');
 var chai = require('chai');
 var Net = require('net');
 var Socks5Client = require('socks5-client');
+var EventEmitter = require('events').EventEmitter;
 
 /* jshint unused: false */
 var should = chai.should();
@@ -12,78 +14,54 @@ var fs = require('fs');
 
 var bitcore = require('bitcore');
 var _ = bitcore.deps._;
+var Networks = bitcore.Networks;
 var p2p = require('../');
 var Peer = p2p.Peer;
-var Networks = bitcore.Networks;
+var Messages = p2p.Messages;
 
 describe('Peer', function() {
 
-  describe('Integration test', function() {
-    it('parses ./test/connection.log', function(callback) {
-      var peer = new Peer('');
-      var mockSocket = sinon.stub();
-      var dataCallback;
-      var connectCallback;
-      var endCallback;
-      var expected = {
-        version: 1,
-        verack: 1,
-        inv: 18,
-        ready: 1,
-        disconnect: 1,
-        addr: 4
-      };
-      var received = {
-        version: 0,
-        verack: 0,
-        inv: 0,
-        ready: 0,
-        disconnect: 0,
-        addr: 0
-      };
-      mockSocket.on = function() {
-        if (arguments[0] === 'data') {
-          dataCallback = arguments[1];
-        }
-        if (arguments[0] === 'connect') {
-          connectCallback = arguments[1];
-        }
-        if (arguments[0] === 'end') {
-          endCallback = arguments[1];
-        }
-      };
-      mockSocket.write = function() {};
-      mockSocket.destroy = function() {};
-      mockSocket.connect = function() {
-        connectCallback();
-      };
-      mockSocket.end = function() {
-        endCallback();
-      };
-      peer._getSocket = function() {
-        return mockSocket;
-      };
-      peer.on('connect', function() {
-        dataCallback(fs.readFileSync('./test/connection.log'));
-      });
-      var check = function(message) {
-        received[message.command]++;
-        if (_.isEqual(received, expected)) {
-          callback();
-        }
-      };
-      peer.on('version', check);
-      peer.on('verack', check);
-      peer.on('addr', check);
-      peer.on('inv', check);
-      peer.on('ready', function() {check({command: 'ready'})});
-      peer.on('disconnect', function() {check({command: 'disconnect'})});
-      peer.connect();
-      mockSocket.end();
-    });
+  var mockPeer, mockSocket;
+  beforeEach( function() {
+    mockPeer = new Peer();
+    mockSocket = new EventEmitter();
+    mockPeer._getSocket = function() {return mockSocket};
+    var dataBuffer = new Buffers();
+    mockSocket.write = function(data) {
+      dataBuffer.push(data)
+    };
+    mockSocket.destroy = function() {};
+    mockSocket.connect = function() {
+      mockSocket.emit('connect')
+    };
+    mockPeer.connect();
   });
 
-
+  it('parses the messages in Satoshi-v0.9.1.dat', function(callback) {
+    var expected = {
+      version: 1,
+      verack: 1,
+      inv: 18,
+      addr: 4
+    };
+    var received = {
+      version: 0,
+      verack: 0,
+      inv: 0,
+      addr: 0
+    };
+    var check = function(message) {
+      received[message.command]++;
+      if (_.isEqual(received, expected)) {
+        callback();
+      }
+    };
+    mockPeer.on('version', check);
+    mockPeer.on('verack', check);
+    mockPeer.on('addr', check);
+    mockPeer.on('inv', check);
+    mockSocket.emit('data', fs.readFileSync(__dirname + '/data/Satoshi-v0.9.1.dat'));
+  });
   it('should be able to create instance', function() {
     var peer = new Peer('localhost');
     peer.host.should.equal('localhost');
