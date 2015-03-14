@@ -136,14 +136,6 @@ describe('Peer', function() {
     });
   });
 
-  it('should send pong on ping', function() {
-    var pingMessage = new Messages.Ping();
-    mockSocket.emit('data', pingMessage.serialize(Networks.livenet));
-    var responseMessages = Messages.parseMessages(Networks.livenet, dataBuffer);
-    var pongMessage = responseMessages[responseMessages.length - 1];
-    'pong'.should.equal(pongMessage.command);
-  });
-
   it('should not send pong on ping if peer is old', function() {
     mockPeer.version = Peer.BIP0031_VERSION;
     var pingMessage = new Messages.Ping();
@@ -153,7 +145,7 @@ describe('Peer', function() {
     'version'.should.equal(lastMessage.command);
   });
 
-  it('replies pong with same nonce as ping', function() {
+  it('reply pong with same nonce as ping', function() {
     var pingMessage = new Messages.Ping(Random.getPseudoRandomBuffer(8));
     mockSocket.emit('data', pingMessage.serialize(Networks.livenet));
     var responseMessages = Messages.parseMessages(Networks.livenet, dataBuffer);
@@ -186,14 +178,22 @@ describe('Peer', function() {
     });
     mockSocket.emit('data', message.serialize(Networks.livenet));
   });
-//  it('sends nonse-less ping when version < BIP0031_VERSION', function() {
-//    mockPeer.version =
-//    mockPeer.ping();
-//    mockPeer.sendMessages([]);
-//    var responseMessages = Messages.parseMessages(Networks.livenet, dataBuffer);
-//    var pingMessage = responseMessages[responseMessages.length - 1];
-//    var pongMessage = new Messages.Pong(pingMessage.nonce);
-//    console.log(pingMessage)
-////    mockSocket.emit('data', pongMessage.serialize(Networks.livenet));
-//  });
+
+  it('sends 8-byte nonce ping on SendMessages', function() {
+    mockPeer.ping();
+    mockPeer.sendMessages([]);
+    var responseMessages = Messages.parseMessages(Networks.livenet, dataBuffer);
+    var pingMessage = responseMessages[responseMessages.length - 1];
+    true.should.equal(pingMessage.nonce.length === 8);
+  });
+
+  it('sends nonse-less ping when version <= BIP0031_VERSION', function() {
+    mockPeer.version = Peer.BIP0031_VERSION;
+    mockPeer.ping();
+    mockPeer.sendMessages([]);
+    var responseMessages = Messages.parseMessages(Networks.livenet, dataBuffer);
+    var pingMessage = responseMessages[responseMessages.length - 1];
+    true.should.equal(pingMessage.nonce.length === 0);
+  });
+
 });
