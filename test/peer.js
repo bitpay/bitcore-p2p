@@ -1,8 +1,10 @@
 'use strict';
 
+var Buffers = require('buffers');
 var chai = require('chai');
 var Net = require('net');
 var Socks5Client = require('socks5-client');
+var EventEmitter = require('events').EventEmitter;
 
 /* jshint unused: false */
 var should = chai.should();
@@ -12,63 +14,56 @@ var fs = require('fs');
 
 var bitcore = require('bitcore');
 var _ = bitcore.deps._;
+var Networks = bitcore.Networks;
+var Random = bitcore.crypto.Random;
 var p2p = require('../');
 var Peer = p2p.Peer;
-var Networks = bitcore.Networks;
+var Messages = p2p.Messages;
 
 describe('Peer', function() {
 
-  describe('Integration test', function() {
-    it('parses this stream of data from a connection', function(callback) {
-      var peer = new Peer('');
-      var stub = sinon.stub();
-      var dataCallback;
-      var connectCallback;
-      var expected = {
-        version: 1,
-        verack: 1,
-        inv: 18,
-        addr: 4
-      };
-      var received = {
-        version: 0,
-        verack: 0,
-        inv: 0,
-        addr: 0
-      };
-      stub.on = function() {
-        if (arguments[0] === 'data') {
-          dataCallback = arguments[1];
-        }
-        if (arguments[0] === 'connect') {
-          connectCallback = arguments[1];
-        }
-      };
-      stub.write = function() {};
-      stub.connect = function() {
-        connectCallback();
-      };
-      peer._getSocket = function() {
-        return stub;
-      };
-      peer.on('connect', function() {
-        dataCallback(fs.readFileSync('./test/connection.log'));
-      });
-      var check = function(message) {
-        received[message.command]++;
-        if (_.isEqual(received, expected)) {
-          callback();
-        }
-      };
-      peer.on('version', check);
-      peer.on('verack', check);
-      peer.on('addr', check);
-      peer.on('inv', check);
-      peer.connect();
-    });
+  var mockPeer, mockSocket, dataBuffer;
+  beforeEach( function() {
+    mockPeer = new Peer();
+    mockPeer.version = Peer.BIP0031_VERSION + 1;
+    mockSocket = new EventEmitter();
+    mockPeer._getSocket = function() {return mockSocket};
+    dataBuffer = new Buffers();
+    mockSocket.write = function(data) {
+      dataBuffer.push(data)
+    };
+    mockSocket.destroy = function() {};
+    mockSocket.connect = function() {
+      mockSocket.emit('connect')
+    };
+    mockPeer.connect();
   });
 
-
+  it('parses and emits properly when fed Satoshi-v0.9.1.dat', function(callback) {
+    var expected = {
+      version: 1,
+      verack: 1,
+      inv: 18,
+      addr: 4
+    };
+    var received = {
+      version: 0,
+      verack: 0,
+      inv: 0,
+      addr: 0
+    };
+    var check = function(message) {
+      received[message.command]++;
+      if (_.isEqual(received, expected)) {
+        callback();
+      }
+    };
+    mockPeer.on('version', check);
+    mockPeer.on('verack', check);
+    mockPeer.on('addr', check);
+    mockPeer.on('inv', check);
+    mockSocket.emit('data', fs.readFileSync(__dirname + '/data/Satoshi-v0.9.1.dat'));
+  });
   it('should be able to create instance', function() {
     var peer = new Peer('localhost');
     peer.host.should.equal('localhost');
@@ -139,6 +134,66 @@ describe('Peer', function() {
       peer._sendVersion();
       peerSendMessageStub.restore();
     });
+  });
+
+  it('should not send pong on ping if peer is old', function() {
+    mockPeer.version = Peer.BIP0031_VERSION;
+    var pingMessage = new Messages.Ping();
+    mockSocket.emit('data', pingMessage.serialize(Networks.livenet));
+    var responseMessages = Messages.parseMessages(Networks.livenet, dataBuffer);
+    var lastMessage = responseMessages[responseMessages.length - 1];
+    'version'.should.equal(lastMessage.command);
+  });
+
+  it('reply pong with same nonce as ping', function() {
+    var pingMessage = new Messages.Ping(Random.getPseudoRandomBuffer(8));
+    mockSocket.emit('data', pingMessage.serialize(Networks.livenet));
+    var responseMessages = Messages.parseMessages(Networks.livenet, dataBuffer);
+    var pongMessage = responseMessages[responseMessages.length - 1];
+    pingMessage.nonce.toString().should.equal(pongMessage.nonce.toString());
+  });
+
+  it('should emit ready on verack', function(callback) {
+    mockPeer.on('ready', callback);
+    var message = new Messages.VerAck();
+    mockSocket.emit('data', message.serialize(Networks.livenet));
+  });
+
+  it('should emit error on unsolicited pong', function(callback) {
+    var message = new Messages.Pong(Random.getPseudoRandomBuffer(8));
+    mockPeer.on('error', function(err) {
+      if(err.message.slice(0,11) === 'Unsolicited') {
+        callback();
+      }
+    });
+    mockSocket.emit('data', message.serialize(Networks.livenet));
+  });
+
+  it('should emit error on pong with < 8 byte nonce', function(callback) {
+    var message = new Messages.Pong();
+    mockPeer.on('error', function(err) {
+      if(err.message.slice(0,5) === 'Short') {
+        callback();
+      }
+    });
+    mockSocket.emit('data', message.serialize(Networks.livenet));
+  });
+
+  it('sends 8-byte nonce ping on SendMessages', function() {
+    mockPeer.ping();
+    mockPeer.sendMessages([]);
+    var responseMessages = Messages.parseMessages(Networks.livenet, dataBuffer);
+    var pingMessage = responseMessages[responseMessages.length - 1];
+    true.should.equal(pingMessage.nonce.length === 8);
+  });
+
+  it('sends nonse-less ping when version <= BIP0031_VERSION', function() {
+    mockPeer.version = Peer.BIP0031_VERSION;
+    mockPeer.ping();
+    mockPeer.sendMessages([]);
+    var responseMessages = Messages.parseMessages(Networks.livenet, dataBuffer);
+    var pingMessage = responseMessages[responseMessages.length - 1];
+    true.should.equal(pingMessage.nonce.length === 0);
   });
 
 });
