@@ -56,7 +56,7 @@ describe('Messages', function() {
   describe('@constructor for all command messages', function() {
     var messages = new Messages();
     Object.keys(messages.builder.commandsMap).forEach(function(command) {
-      var name = messages.builder.commandsMap[command];
+      var name = messages.builder.commandsMap[command]._name;
       it('message.' + name, function(done) {
         should.exist(messages[name]);
         var message = messages[name]();
@@ -70,7 +70,7 @@ describe('Messages', function() {
   describe('#fromBuffer/#toBuffer round trip for all commands', function() {
     var messages = new Messages();
     Object.keys(messages.builder.commandsMap).forEach(function(command) {
-      var name = messages.builder.commandsMap[command];
+      var name = messages.builder.commandsMap[command]._name;
       it(name, function(done) {
         var payloadBuffer = getPayloadBuffer(commandData[command].message);
         should.exist(messages[name]);
@@ -88,7 +88,7 @@ describe('Messages', function() {
   describe('Default Network', function() {
     var messages = new Messages();
     Object.keys(messages.builder.commandsMap).forEach(function(command) {
-      var name = messages.builder.commandsMap[command];
+      var name = messages.builder.commandsMap[command]._name;
       it(name, function() {
         var message = messages[name]();
         message.network.should.deep.equal(bitcore.Networks.defaultNetwork);
@@ -127,7 +127,7 @@ describe('Messages', function() {
 
     describe('#forTransaction', function() {
       constructors.forEach(function(command) {
-        var name = messages.builder.commandsMap[command];
+        var name = messages.builder.commandsMap[command]._name;
         it(name, function() {
           should.exist(messages[name].forTransaction);
           var message = messages[name].forTransaction(fakeHash);
@@ -139,7 +139,7 @@ describe('Messages', function() {
 
     describe('#forBlock', function() {
       constructors.forEach(function(command) {
-        var name = messages.builder.commandsMap[command];
+        var name = messages.builder.commandsMap[command]._name;
         it(name, function() {
           var message = messages[name].forBlock(fakeHash);
           should.exist(message);
@@ -150,7 +150,7 @@ describe('Messages', function() {
 
     describe('#forFilteredBlock', function() {
       constructors.forEach(function(command) {
-        var name = messages.builder.commandsMap[command];
+        var name = messages.builder.commandsMap[command]._name;
         it(name, function() {
           var message = messages[name].forFilteredBlock(fakeHash);
           should.exist(message);
