@@ -137,7 +137,7 @@ describe('Command Messages', function() {
       var message = messages.FilterLoad();
       var payload = message.getPayload();
       payload.length.should.equal(0);
-      payload.should.be.instanceof(Buffer);
+      Buffer.isBuffer(payload).should.equal(true);
     });
 
     it('should error if filter is not a bloom filter', function() {
