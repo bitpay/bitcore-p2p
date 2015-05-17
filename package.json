@@ -6,7 +6,7 @@
   "main": "index.js",
   "scripts": {
     "lint": "gulp lint",
-    "test": "gulp test:node",
+    "test": "gulp test",
     "coverage": "gulp coverage",
     "build": "gulp"
   },

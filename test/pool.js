@@ -23,6 +23,11 @@ function getPayloadBuffer(messageBuffer) {
   return new Buffer(messageBuffer.slice(48), 'hex');
 }
 
+// skip these tests in browser
+if (process.browser) {
+  describe = function () {}
+}
+
 describe('Pool', function() {
 
   it('create instance', function() {

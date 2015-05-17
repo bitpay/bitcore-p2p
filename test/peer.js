@@ -19,6 +19,11 @@ var Messages = P2P.Messages;
 var messages = new Messages();
 var Networks = bitcore.Networks;
 
+// skip these tests in browser
+if (process.browser) {
+  describe = function () {}
+}
+
 describe('Peer', function() {
 
   describe('Integration test', function() {
@@ -112,7 +117,9 @@ describe('Peer', function() {
     peer = new Peer('localhost');
     expect(peer.proxy).to.be.undefined();
     socket = peer._getSocket();
-    socket.should.be.instanceof(Net.Socket);
+    if (!process.browser) {
+      socket.should.be.instanceof(Net.Socket);
+    }
 
     peer2 = peer.setProxy('127.0.0.1', 9050);
     peer2.proxy.host.should.equal('127.0.0.1');
