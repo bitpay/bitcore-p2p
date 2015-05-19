@@ -19,6 +19,9 @@ var Messages = P2P.Messages;
 var messages = new Messages();
 var Networks = bitcore.Networks;
 
+// skip tests in browser
+var bxit = process.browser ? function () {} : it
+
 describe('Peer', function() {
 
   describe('Integration test', function() {
@@ -106,13 +109,15 @@ describe('Peer', function() {
     peer.port.should.equal(8111);
   });
 
-  it('set a proxy', function() {
+  bxit('set a proxy', function() {
     var peer, peer2, socket;
 
     peer = new Peer('localhost');
     expect(peer.proxy).to.be.undefined();
     socket = peer._getSocket();
-    socket.should.be.instanceof(Net.Socket);
+    if (!process.browser) {
+      socket.should.be.instanceof(Net.Socket);
+    }
 
     peer2 = peer.setProxy('127.0.0.1', 9050);
     peer2.proxy.host.should.equal('127.0.0.1');
@@ -171,7 +176,7 @@ describe('Peer', function() {
     peer.socket.emit('error', new Error('fake error'));
   });
 
-  it('disconnect with max buffer length', function(done) {
+  bxit('disconnect with max buffer length', function(done) {
     var peer = new Peer({host: 'localhost'});
     var socket = new EventEmitter();
     socket.connect = sinon.spy();

@@ -23,6 +23,9 @@ function getPayloadBuffer(messageBuffer) {
   return new Buffer(messageBuffer.slice(48), 'hex');
 }
 
+// skip tests in browser
+var bxit = process.browser ? function () {} : it
+
 describe('Pool', function() {
 
   it('create instance', function() {
@@ -38,7 +41,7 @@ describe('Pool', function() {
     pool.network.should.equal(Networks.testnet);
   });
 
-  it('discover peers via dns', function() {
+  bxit('discover peers via dns', function() {
     var stub = sinon.stub(dns, 'resolve', function(seed, callback) {
       callback(null, ['10.10.10.1', '10.10.10.2', '10.10.10.3']);
     });
@@ -49,7 +52,7 @@ describe('Pool', function() {
     stub.restore();
   });
 
-  it('optionally connect without dns seeds', function() {
+  bxit('optionally connect without dns seeds', function() {
     sinon.stub(Peer.prototype, 'connect', function() {
       this.socket = {
         destroy: sinon.stub()
@@ -272,7 +275,7 @@ describe('Pool', function() {
     pool.inspect().should.equal('<Pool network: livenet, connected: 0, available: 0>');
   });
 
-  it('emit seederrors with error', function(done) {
+  bxit('emit seederrors with error', function(done) {
     var dnsStub = sinon.stub(dns, 'resolve', function(seed, callback) {
       callback(new Error('A DNS error'));
     });
@@ -286,7 +289,7 @@ describe('Pool', function() {
     pool.connect();
   });
 
-  it('emit seederrors with notfound', function(done) {
+  bxit('emit seederrors with notfound', function(done) {
     var dnsStub = sinon.stub(dns, 'resolve', function(seed, callback) {
       callback(null, []);
     });
@@ -400,7 +403,7 @@ describe('Pool', function() {
   });
 
   describe('#_connectPeer', function() {
-    it('connect ipv6 peer', function() {
+    bxit('connect ipv6 peer', function() {
       var connectStub = sinon.stub(Peer.prototype, 'connect');
       var pool = new Pool({network: Networks.livenet, maxSize: 1});
       var ipv6 = '2001:0db8:85a3:0042:1000:8a2e:0370:7334';
@@ -418,7 +421,7 @@ describe('Pool', function() {
       connectStub.restore();
     });
 
-    it('will pass network to peer', function() {
+    bxit('will pass network to peer', function() {
       var connectStub = sinon.stub(Peer.prototype, 'connect');
       var pool = new Pool({network: Networks.testnet, maxSize: 1});
       var ipv6 = '2001:0db8:85a3:0042:1000:8a2e:0370:7334';
@@ -474,7 +477,7 @@ describe('Pool', function() {
 
   describe('#listen', function() {
 
-    it('create a server', function(done) {
+    bxit('create a server', function(done) {
       var netStub = sinon.stub(net, 'createServer', function() {
         return {
           listen: function() {
@@ -487,7 +490,7 @@ describe('Pool', function() {
       pool.listen();
     });
 
-    it('should handle an ipv6 connection', function(done) {
+    bxit('should handle an ipv6 connection', function(done) {
       var ipv6 = '2001:0db8:85a3:0042:1000:8a2e:0370:7334';
       sinon.stub(net, 'createServer', function(callback) {
         callback({
@@ -512,7 +515,7 @@ describe('Pool', function() {
       pool.listen();
     });
 
-    it('include port for addr on incoming connections', function(done) {
+    bxit('include port for addr on incoming connections', function(done) {
       var port = 12345;
       sinon.stub(net, 'createServer', function(callback) {
         callback({
@@ -534,7 +537,7 @@ describe('Pool', function() {
       pool.listen();
     });
 
-    it('should handle an ipv4 connection', function(done) {
+    bxit('should handle an ipv4 connection', function(done) {
       var ipv4 = '127.0.0.1';
       sinon.stub(net, 'createServer', function(callback) {
         callback({
