@@ -1,7 +1,7 @@
 {
-  "name": "bitcore-p2p",
+  "name": "flocore-p2p",
   "version": "5.0.0-beta.2",
-  "description": "Interface to the bitcoin P2P network for bitcore",
+  "description": "Interface to the Flo P2P network for flocore",
   "main": "index.js",
   "scripts": {
     "lint": "gulp lint",
@@ -18,7 +18,7 @@
     "url": "https://github.com/bitpay/bitcore-p2p.git"
   },
   "dependencies": {
-    "bitcore-lib": "5.0.0-beta.1",
+    "flocore-lib": "0.15.0",
     "bcoin": "1.0.0-beta.12",
     "bloom-filter": "^0.2.0",
     "buffers": "bitpay/node-buffers#v0.1.2-bitpay",
