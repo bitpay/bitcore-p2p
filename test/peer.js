@@ -240,4 +240,40 @@ describe('Peer', function() {
     });
   });
 
+  it('send reject message if unknown command is received', function(done) {
+    var peer = new Peer({host: 'localhost'});
+    peer.sendMessage = function(message) {
+      message.command.should.equal('reject');
+      message.reason.should.equal('Unknown command');
+      message.ccode.should.equal(messages.Reject._constructor.CCODE.REJECT_INVALID);
+      done();
+    };
+    const rawData = 'f9beb4d9' + // bitcoin mainnet magic number
+      '6e6f65786973740000000000' + // command (padded to 16 bytes)
+      '20000000' + // payload length (32)
+      '31085cf0' + // digest - sha256(sha256(payloadBuf)).slice(0,4)
+      '177aace029c59e693bb46cbe028a05ed5b8c4615f7ce590626683e2f56a22b2d'; // payload (random bytes here)
+    peer.dataBuffer.push(new Buffer(rawData, 'hex'));
+    peer._readMessage();
+  });
+
+  describe('send reject message for malformed payload', function() {
+    it('declared payload length is lower than actual payload length', function(done) {
+      var peer = new Peer({host: 'localhost'});
+      peer.sendMessage = function(message) {
+        message.command.should.equal('reject');
+        message.reason.should.equal('Malformed payload');
+        message.ccode.should.equal(messages.Reject._constructor.CCODE.REJECT_MALFORMED);
+        done();
+      };
+      const rawData = 'f9beb4d9' + // bitcoin mainnet magic number
+        '70696e670000000000000000' + // command (padded to 16 bytes)
+        '20000000' + // payload length (here we declare 32 but actually it is 34)
+        '31085cf0' + // digest - sha256(sha256(payloadBuf)).slice(0,4) of the declared payload slice
+        // payload (random bytes here + added 0e at the end)
+        '177aace029c59e693bb46cbe028a05ed5b8c4615f7ce590626683e2f56a22b2d0e';
+      peer.dataBuffer.push(new Buffer(rawData, 'hex'));
+      peer._readMessage();
+    });
+  });
 });
