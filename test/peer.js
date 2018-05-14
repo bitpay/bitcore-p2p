@@ -270,7 +270,8 @@ describe('Peer', function() {
         '70696e670000000000000000' + // command (padded to 16 bytes)
         '20000000' + // payload length (here we declare 32 but actually it is 34)
         '31085cf0' + // digest - sha256(sha256(payloadBuf)).slice(0,4) of the declared payload slice
-        '177aace029c59e693bb46cbe028a05ed5b8c4615f7ce590626683e2f56a22b2d0e'; // payload (random bytes here + added 0e at the end)
+        // payload (random bytes here + added 0e at the end)
+        '177aace029c59e693bb46cbe028a05ed5b8c4615f7ce590626683e2f56a22b2d0e';
       peer.dataBuffer.push(new Buffer(rawData, 'hex'));
       peer._readMessage();
     });
