@@ -1,6 +1,6 @@
 {
   "name": "flocore-p2p",
-  "version": "5.0.0-beta.3",
+  "version": "5.0.0-beta.4",
   "description": "Interface to the Flo P2P network for flocore",
   "main": "index.js",
   "scripts": {
