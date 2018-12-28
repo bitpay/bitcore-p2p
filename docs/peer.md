@@ -6,6 +6,7 @@ The code to create a new peer looks like this:
 
 ```javascript
 var Peer = require('bitcore-p2p').Peer;
+var Networks = require('bitcore-lib').Networks;
 
 // default port
 var livenetPeer = new Peer({host: '5.9.85.34'});
