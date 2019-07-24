@@ -18,10 +18,10 @@
     "url": "https://github.com/bitpay/bitcore-p2p.git"
   },
   "dependencies": {
-    "flocore-lib": "^0.15.2",
-    "fcoin": "https://github.com/OstlerDev/fcoin#bcoin-1.0.2",
     "bloom-filter": "^0.2.0",
     "buffers": "bitpay/node-buffers#v0.1.2-bitpay",
+    "fcoin": "git+https://github.com/OstlerDev/fcoin.git#bcoin-1.0.2",
+    "flocore-lib": "^0.15.2",
     "socks5-client": "^0.3.6"
   },
   "devDependencies": {
