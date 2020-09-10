@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "bitcore-lib": "5.0.0-beta.1",
-    "bcoin": "1.0.0-beta.12",
+    "bcoin": "1.0.2",
     "bloom-filter": "^0.2.0",
     "buffers": "bitpay/node-buffers#v0.1.2-bitpay",
     "socks5-client": "^0.3.6"
