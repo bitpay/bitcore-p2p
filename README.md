@@ -56,4 +56,5 @@ See [CONTRIBUTING.md](https://github.com/widecoin-project/widecore/blob/master/C
 Code released under [the MIT license](https://github.com/widecoin-project/widecore/blob/master/LICENS).
 
 Copyright 2013-2015 BitPay, Inc. Bitcore is a trademark maintained by BitPay, Inc.
+
 Copyright 2020 The Widecore Core Developers
