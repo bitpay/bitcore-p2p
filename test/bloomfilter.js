@@ -4,7 +4,7 @@ var chai = require('chai');
 var should = chai.should();
 
 var assert = require('assert');
-var bitcore = require('bitcore-lib');
+var bitcore = require('widecore-lib');
 var Data = require('./data/messages');
 var P2P = require('../');
 var BloomFilter = P2P.BloomFilter;
@@ -36,7 +36,7 @@ describe('BloomFilter', function() {
 
   it('serialize filter with public keys added', function() {
 
-    var privateKey = bitcore.PrivateKey.fromWIF('5Kg1gnAjaLfKiwhhPpGS3QfRg2m6awQvaj98JCZBZQ5SuS2F15C');
+    var privateKey = bitcore.PrivateKey.fromWIF('5KGwLodYZZhjYJAhxBH1ipVaX5nqn5j9iqba1xr599UEUPehNxP');
     var publicKey = privateKey.toPublicKey();
 
     var filter = BloomFilter.create(2, 0.001, 0, BloomFilter.BLOOM_UPDATE_ALL);

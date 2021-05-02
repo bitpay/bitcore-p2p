@@ -1,11 +1,11 @@
 # Peer
-Represents a node from the p2p bitcoin network. The Peer class supports connecting directly to other nodes or through a socks5 proxy like Tor.
+Represents a node from the p2p widecoin network. The Peer class supports connecting directly to other nodes or through a socks5 proxy like Tor.
 
 ## Creating a peer
 The code to create a new peer looks like this:
 
 ```javascript
-var Peer = require('bitcore-p2p').Peer;
+var Peer = require('widecore-p2p').Peer;
 
 // default port
 var livenetPeer = new Peer({host: '5.9.85.34'});
@@ -29,7 +29,7 @@ A peer instance is always in one of the following states:
 You can subscribe to the change of those states as follows:
 
 ```javascript
-var Peer = require('bitcore-p2p').Peer;
+var Peer = require('widecore-p2p').Peer;
 
 var peer = new Peer({host: '5.9.85.34'});
 
@@ -49,7 +49,7 @@ peer.connect();
 Once connected, a peer instance can send and receive messages. Every time a message arrives it's emitted as a new event. Let's see an example of this:
 
 ```javascript
-var Peer = require('bitcore-p2p').Peer;
+var Peer = require('widecore-p2p').Peer;
 var peer = new Peer({host: '5.9.85.34'});
 
 // handle events
@@ -74,7 +74,7 @@ In order to send messages the Peer class offers the `sendMessage(message)` metho
 An example for requesting other connected nodes to a peers looks like this:
 
 ```javascript
-var p2p = require('bitcore-p2p')
+var p2p = require('widecore-p2p')
 var Peer = p2p.Peer;
 var Messages = p2p.Messages;
 var peer = new Peer({host: '5.9.85.34'});

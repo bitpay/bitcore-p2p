@@ -1,5 +1,5 @@
 # Messages
-The bitcoin protocol specifies a set of [messages](https://en.bitcoin.it/wiki/Protocol_specification) that can be sent from peer to peer. `bitcore-p2p` provides support for some of these messages.
+The widecoin protocol specifies a set of [messages](https://en.bitcoin.it/wiki/Protocol_specification) that can be sent from peer to peer. `widecore-p2p` provides support for some of these messages.
 
 To create a message, you can use any of the message constructors, here is a simple example:
 
@@ -16,7 +16,7 @@ message = messages.GetData.forBlock(blockHash);
 message = messages.Inventory.forTransaction(txHash);
 ```
 
-As well as sending "tx" and "block" messages with Bitcore instances:
+As well as sending "tx" and "block" messages with Widecore instances:
 
 ```javascript
 message = messages.Block(block);
@@ -39,16 +39,16 @@ var messages = new Messages({network: Networks.testnet});
 
 ## List of Messages
 ### Version
-The version message (`ver`) is used on connection creation, to advertise the type of node. The remote node will respond with its version, and no communication is possible until both peers have exchanged their versions. By default, bitcore advertises itself as named `bitcore` with the current version of the `bitcore-p2p` package.
+The version message (`ver`) is used on connection creation, to advertise the type of node. The remote node will respond with its version, and no communication is possible until both peers have exchanged their versions. By default, widecore advertises itself as named `widecore` with the current version of the `widecore-p2p` package.
 
 ### VerAck
 Finishes the connection handshake started by the `ver` message.
 
 ### Inventory
-From the bitcoin protocol spec: "Allows a node to advertise its knowledge of one or more objects. It can be received unsolicited, or in reply to getblocks.".
+From the widecoin protocol spec: "Allows a node to advertise its knowledge of one or more objects. It can be received unsolicited, or in reply to getblocks.".
 
 ### GetData
-From the bitcoin protocol spec: `getdata` is used in response to `inv`, to retrieve the content of a specific object, and is usually sent after receiving an `inv` packet, after filtering known elements. It can be used to retrieve transactions, but only if they are in the memory pool or relay set - arbitrary access to transactions in the chain is not allowed to avoid having clients start to depend on nodes having full transaction indexes (which modern nodes do not).
+From the widecoin protocol spec: `getdata` is used in response to `inv`, to retrieve the content of a specific object, and is usually sent after receiving an `inv` packet, after filtering known elements. It can be used to retrieve transactions, but only if they are in the memory pool or relay set - arbitrary access to transactions in the chain is not allowed to avoid having clients start to depend on nodes having full transaction indexes (which modern nodes do not).
 
 GetData inherits from Inventory, as they both have the same structure.
 
